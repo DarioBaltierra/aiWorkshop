@@ -56,6 +56,7 @@ END;
 Luego, creamos el perfil con el modelo `meta.llama-3-70b-instruct` llamando las tablas requeridas para el lab:
 
 En owner pondremos el nombre del usuario al que pertenecen esas tablas.
+
 En name pondremos el nombre de las tablas que vamos a ocupar
 
 ```sql
