@@ -72,7 +72,7 @@ BEGIN
                 --{"owner": "SH", "name": "products"},
                 --{"owner": "SH", "name": "countries"}
             ],
-            "model": "meta.llama-3-70b-instruct"
+            "model": "meta.llama-3.1-70b-instruct"
             }');
 END;
 /
