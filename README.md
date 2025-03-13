@@ -14,28 +14,30 @@ Antes de comenzar, asegúrate de tener acceso a:
 
 ---
 
-## Paso 1: Deshabilitar y habilitar el principal de recursos
-En policies agregar la siguiente politica:
+## Paso 1: Creacion de Credenciales
 
-allow group Administrators to manage generative-ai-family in tenancy
-
-Para comenzar, primero necesitamos deshabilitar y luego habilitar el **principal de recursos** para el usuario `ADMIN`. Esto nos asegurará que el entorno esté preparado para los siguientes comandos.
+Para comenzar, primero necesitamos crear las credenciales dentro de SQL en nuestra base de datos.
 
 ```sql
-BEGIN
-  dbms_cloud_admin.disable_resource_principal(username  => 'ADMIN');
-END;
+-- Create Credential with OCI API key
+--
+BEGIN                                                                         
+  DBMS_CLOUD.CREATE_CREDENTIAL(                                               
+    credential_name => 'GENAI_CRED',                                          
+    user_ocid       => 'ocid1.user....',
+    tenancy_ocid    => 'ocid1.tenancy....',
+    private_key     => 'MIIEvgIBA....',
+    fingerprint     => 'b2:22....'      
+  );                                                                          
+END;                                                                         
 /
+
 ```
 
-Ahora habilitamos el **resource_principal**:
+Es importante recordar que para poder obtener los datos debemos tener la API key y el fingerprint.
 
-```sql
-BEGIN
-  dbms_cloud_admin.enable_resource_principal(username  => 'ADMIN');
-END;
-/
-```
+<img width="464" alt="image" src="https://github.com/user-attachments/assets/28b35f2c-d49b-4d3c-9c0b-8b0cd557c5d5" />
+
 
 ---
 
@@ -68,7 +70,7 @@ BEGIN
         profile_name => 'ociai_llama',
         attributes   => 
         '{"provider": "oci",
-            "credential_name": "OCI$RESOURCE_PRINCIPAL",
+            "credential_name": "GENAI_CRED",
             "object_list": [
                 {"owner": "SH", "name": "sales"},
                 {"owner": "SH", "name": "products"},
@@ -96,81 +98,30 @@ END;
 
 En este numeral, aprenderemos a utilizar el paquete `DBMS_CLOUD_AI` para generar respuestas narrativas y consultas SQL automáticas utilizando la funcionalidad de SELECT AI en Oracle Cloud Infrastructure (OCI) Autonomous Database.
 
-## 3.1 Consulta: Obtener el jugador con más goles (respuesta narrativa)
+## 3.1 Consulta: (respuesta narrativa)
 Para obtener una respuesta narrativa:
 
 ```sql
 SELECT DBMS_CLOUD_AI.GENERATE(
-    prompt => '¿cual es el jugador con mas goles?',
+    prompt => '¿Cuales son los productos mas vendidos?',
     profile_name => 'ociai_llama',
     action => 'narrate'
 ) AS chat
 FROM dual;
 ```
-**Descripción**: Esta consulta genera una respuesta narrativa utilizando el perfil `ociai_llama` para responder a la pregunta sobre el jugador con más goles. El resultado será un texto descriptivo.
 
 
-## 3.2 Consulta: Obtener el jugador con más goles (consulta SQL generada)
+
+## 3.2 Consulta: (consulta SQL generada)
 
 ```sql
 SELECT DBMS_CLOUD_AI.GENERATE(
-    prompt => '¿cual es el jugador con mas goles?',
+    prompt => '¿Cuales son los productos mas vendidos?',
     profile_name => 'ociai_llama',
     action => 'showsql'
 ) AS query
 FROM dual;
 ```
-
-**Descripción**: A diferencia de la anterior, esta consulta genera una instrucción SQL que puede ser utilizada para obtener el jugador con más goles, en lugar de una respuesta narrativa.
-
-## 3.3 Consulta: Visualizar eventos en la tabla PL.EVENT
-
-Es posible crear texto LLM usando la interfaz de Oracle SQL.
-
-```sql
-SELECT * FROM pl.event;
-```
-**Descripción**: Esta consulta recupera todos los registros de la tabla PL.EVENT, que contiene información sobre eventos de partidos, incluyendo goles, tipo de gol (cabeza, penalti, etc.).
-
-### 3.3.1 Consulta: Análisis de goles de cabeza y goles de penalti (respuesta narrativa)
-
-**Descripción**: Esta consulta utiliza SELECT AI para proporcionar una respuesta narrativa sobre la cantidad de goles de cabeza y de penalti registrados en la tabla PL.EVENT.
-
-```sql
-SELECT DBMS_CLOUD_AI.GENERATE(
-    prompt => '¿La tabla PL.EVENT contiene información sobre la cantidad de goles, donde están marcados como Y / N dependiendo de cómo se anotaron. La columna HEAD indica si el gol fue de cabeza. ¿Cuántos goles de cabeza se han realizado?,¿Cuántos goles de PENALTY se han realizado?, Responde en español',
-    profile_name => 'ociai_llama',
-    action => 'narrate'
-) AS chat
-FROM dual;
-```
-
----
-
----
-
-
-# Reto Final: Uso de showsql para Consultas Automatizadas
-
-En esta sección final del tutorial, los participantes deberán usar la función showsql para generar y visualizar la consulta SQL que responde a una pregunta específica sobre los datos en la tabla **PL.EVENT**.
-
-## Instrucciones del Reto:
-
-**Objetivo**: Usar la función **DBMS_CLOUD_AI.GENERATE** con la acción `showsql` para que el sistema genere automáticamente una consulta SQL que obtenga la cantidad de goles de cabeza y de penalti.
-
-Consulta base a Utilizar:
-
-```sql
-SELECT DBMS_CLOUD_AI.GENERATE(
-    prompt => '¿La tabla PL.EVENT contiene información sobre la cantidad de goles, donde están marcados como Y / N dependiendo de cómo se anotaron. La columna HEAD indica si el gol fue de cabeza. ¿Cuántos goles de cabeza se han realizado?,¿Cuántos goles de PENALTY se han realizado?, Responde en español',
-    profile_name => 'ociai_llama',
-    action => 'narrate'
-) AS chat
-FROM dual;
-```
-## El resultado deber ser algo similar a:
-
-![img](https://github.com/user-attachments/assets/8d0736e4-dc5d-4367-b2fa-528b47e0fe0c)
 
 
 # FIN
