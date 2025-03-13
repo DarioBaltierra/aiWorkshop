@@ -15,6 +15,9 @@ Antes de comenzar, asegúrate de tener acceso a:
 ---
 
 ## Paso 1: Deshabilitar y habilitar el principal de recursos
+En policies agregar la siguiente politica:
+
+allow group Administrators to manage generative-ai-family in tenancy
 
 Para comenzar, primero necesitamos deshabilitar y luego habilitar el **principal de recursos** para el usuario `ADMIN`. Esto nos asegurará que el entorno esté preparado para los siguientes comandos.
 
